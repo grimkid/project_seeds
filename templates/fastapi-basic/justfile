@@ -1,0 +1,45 @@
+# List all available commands
+default:
+    just --list
+
+# Setup the project
+setup:
+    poetry install
+
+# Activate the virtual environment
+activate:
+    poetry env use python3
+
+# Run the development server
+dev:
+    poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Check if the application is healthy
+health:
+    curl http://localhost:8000/health
+
+# Open API documentation in browser
+docs:
+    xdg-open http://localhost:8000/docs || open http://localhost:8000/docs || start http://localhost:8000/docs
+
+# Format code with black
+fmt:
+    poetry run black .
+
+# Run linter
+lint:
+    poetry run flake8
+
+# Run tests
+test:
+    poetry run pytest
+
+# Clean up python cache files
+clean:
+    find . -type d -name "__pycache__" -exec rm -r {} +
+    find . -type f -name "*.pyc" -delete
+
+# Show current Python and environment info
+info:
+    poetry env info
+    poetry show 
