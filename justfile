@@ -44,6 +44,38 @@ new-fastapi-basic project_name="":
     echo "  just setup"
     echo "  just dev"
 
+# Create a new Rust Axum basic project
+new-rust-axum-basic project_name="":
+    #!/usr/bin/env bash
+    if [ -z "{{project_name}}" ]; then
+        read -p "Enter project name: " name
+    else
+        name="{{project_name}}"
+    fi
+    
+    # Validate project name
+    if [[ ! "$name" =~ ^[a-zA-Z][a-zA-Z0-9_-]*[a-zA-Z0-9]$ ]]; then
+        echo "Error: Project name must start with a letter, end with a letter or number, and contain only letters, numbers, underscores, and hyphens"
+        exit 1
+    fi
+    
+    # Convert project name to Cargo-compatible format (lowercase with underscores)
+    cargo_name=$(echo "$name" | tr '[:upper:]' '[:lower:]' | tr '-' '_')
+    display_name="$name"
+    
+    # Copy template
+    cp -r templates/rust-axum-basic "$name"
+    
+    # Replace template variables
+    find "$name" -type f -exec perl -pi -e "s/\\{\\{project_name\\}\\}/$cargo_name/g" {} +
+    find "$name" -type f -exec perl -pi -e "s/\\{\\{display_name\\}\\}/$display_name/g" {} +
+    
+    echo "Created new Rust Axum project: $name"
+    echo "To get started:"
+    echo "  cd $name"
+    echo "  just setup"
+    echo "  just dev"
+
 # List available templates
 list-templates:
     @echo "Available templates:"

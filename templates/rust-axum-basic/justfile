@@ -1,0 +1,45 @@
+# List all available commands
+default:
+    just --list
+
+# Setup the project
+setup:
+    cargo build
+
+# Run the development server with auto-reload
+dev:
+    cargo watch -x run
+
+# Check if the application is healthy
+health:
+    curl http://localhost:3000/health
+
+# Open API documentation in browser
+docs:
+    xdg-open http://localhost:3000/docs || open http://localhost:3000/docs || start http://localhost:3000/docs
+
+# Format code
+fmt:
+    cargo fmt
+
+# Run linter
+lint:
+    cargo clippy
+
+# Run tests
+test:
+    cargo test
+
+# Clean build artifacts
+clean:
+    cargo clean
+
+# Build in release mode
+build-release:
+    cargo build --release
+
+# Show project information
+info:
+    cargo --version
+    rustc --version
+    cargo tree 
