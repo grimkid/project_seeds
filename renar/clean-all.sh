@@ -21,4 +21,19 @@ fi
 # Prune unused Docker resources (no prompt)
 docker system prune -af --volumes
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# Remove data directories
+rm -rf "$SCRIPT_DIR/dotcms/data/postgres"/*
+rm -rf "$SCRIPT_DIR/dotcms/data/dotcms"/*
+rm -rf "$SCRIPT_DIR/dotcms/data/dotcms/logs"/*
+rm -rf "$SCRIPT_DIR/dotcms/data/dotcms/shared"/*
+
+# Remove Docker volumes related to dotcms and postgres
+for volume in $(docker volume ls -q | grep -E 'dotcms|postgres'); do
+  echo "Removing Docker volume: $volume"
+  docker volume rm "$volume"
+done
+
 echo "[clean-all] Docker system pruned. All containers, custom images, and network removed. Persistent data folders remain."
+echo "All relevant data directories and Docker volumes have been cleaned."

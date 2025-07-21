@@ -150,8 +150,11 @@ docker build -t dotcms .
 # Return to original directory if needed
 cd - >/dev/null || true
 
+# --- ADMIN CREDENTIALS ---
+  # Username: admin
+  # Password: 7e2e1b2c-2e2e-4e2e-8e2e-2e2e2e2e2e2e
 docker run --name dotcms-app --network dotcms-net -d \
-  -p 8082:8082 -p 8443:8443 -p 4000:4000 \
+  -p 8086:8082 -p 8443:8443 -p 4000:4000 \
   -v "$SCRIPT_DIR/data/dotcms/shared:/data/shared" \
   -e CMS_JAVA_OPTS='-Xmx1g ' \
   -e LANG='C.UTF-8' \
@@ -159,7 +162,7 @@ docker run --name dotcms-app --network dotcms-net -d \
   -e DB_BASE_URL="jdbc:postgresql://dotcms-postgres/dotcms" \
   -e DB_USERNAME="$POSTGRES_USER" \
   -e DB_PASSWORD="$POSTGRES_PASSWORD" \
-  -e DOT_INITIAL_ADMIN_PASSWORD='admin' \
+  -e DOT_INITIAL_ADMIN_PASSWORD='7e2e1b2c-2e2e-4e2e-8e2e-2e2e2e2e2e2e' \
   -e DOT_DOTCMS_CLUSTER_ID='dotcms-production' \
   -e GLOWROOT_ENABLED='true' \
   -e GLOWROOT_WEB_UI_ENABLED='true' \
@@ -169,6 +172,7 @@ docker run --name dotcms-app --network dotcms-net -d \
   dotcms
 
 # Load from image-cache if available
+echo "Loading Promtail image from image-cache if available..."
 CACHE_DIR="$SCRIPT_DIR/../image-cache"
 if [ -f "$CACHE_DIR/promtail.tar" ]; then
   echo "[backend] Loading promtail from image-cache..."
@@ -176,9 +180,11 @@ if [ -f "$CACHE_DIR/promtail.tar" ]; then
 fi
 
 # Start Promtail as a sidecar container (optional)
+echo "Starting Promtail for log collection..."
 if [ -f "$SCRIPT_DIR/promtail-config.yaml" ]; then
   docker run --name promtail-dotcms --network dotcms-net -d \
     -v "$SCRIPT_DIR/data/dotcms/logs:/var/log/dotcms" \
     -v "$SCRIPT_DIR/promtail-config.yaml:/etc/promtail/promtail-config.yaml" \
     grafana/promtail:2.9.11 -config.file=/etc/promtail/promtail-config.yaml
 fi
+echo "Promtail started successfully."

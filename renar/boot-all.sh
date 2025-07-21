@@ -3,7 +3,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-
+echo "[boot-all] Starting boot process in $SCRIPT_DIR"
 # 1. Start dotCMS and Postgres
 cd "$SCRIPT_DIR/dotcms"
 chmod +x boot-dotcms.sh
