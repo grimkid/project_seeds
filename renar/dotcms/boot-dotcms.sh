@@ -153,8 +153,9 @@ cd - >/dev/null || true
 # --- ADMIN CREDENTIALS ---
   # Username: admin
   # Password: 7e2e1b2c-2e2e-4e2e-8e2e-2e2e2e2e2e2e
+  # https://host:8443/dotAdmin/
 docker run --name dotcms-app --network dotcms-net -d \
-  -p 8086:8082 -p 8443:8443 -p 4000:4000 \
+  -p 8086:8443 -p 4000:4000 \
   -v "$SCRIPT_DIR/data/dotcms/shared:/data/shared" \
   -e CMS_JAVA_OPTS='-Xmx1g ' \
   -e LANG='C.UTF-8' \
@@ -165,6 +166,9 @@ docker run --name dotcms-app --network dotcms-net -d \
   -e DOT_INITIAL_ADMIN_PASSWORD='7e2e1b2c-2e2e-4e2e-8e2e-2e2e2e2e2e2e' \
   -e DOT_DOTCMS_CLUSTER_ID='dotcms-production' \
   -e GLOWROOT_ENABLED='true' \
+  -e DOTCMS_COOKIE_SECURE=false \
+  -e COOKIE_SECURE=false \
+  -e DOT_COOKIE_SECURE=false \
   -e GLOWROOT_WEB_UI_ENABLED='true' \
   -e CUSTOM_STARTER_URL='https://repo.dotcms.com/artifactory/libs-release-local/com/dotcms/starter/empty_20241105/starter-empty_20241105.zip' \
   -e DOT_ES_ENDPOINTS='http://dotcms-elasticsearch:9200' \
