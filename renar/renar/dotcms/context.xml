@@ -1,0 +1,12 @@
+<Context>
+  <Resource name="jdbc/dotCMSPool"
+            auth="Container"
+            type="javax.sql.DataSource"
+            maxTotal="100"
+            maxIdle="30"
+            maxWaitMillis="10000"
+            username="dotcms"
+            password="dotcms"
+            driverClassName="org.postgresql.Driver"
+            url="jdbc:postgresql://dotcms-postgres:5432/dotcms"/>
+</Context>

@@ -1,0 +1,5 @@
+finish implementation for dotcms stable version. am fct backup la versiunea care mergea de nightly, dar ar fi mai safe sa rulam stable version
+
+grafana/promtail labels
+
+try creating proper users more. currently only assigning frontend permisions. 

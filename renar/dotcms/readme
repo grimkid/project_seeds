@@ -1,0 +1,21 @@
+This part, -p 8082:8082, maps the container's internal port 8082 to your host machine's port 8082. The application inside the container is listening for HTTP traffic on port 8082.
+
+You mentioned you are trying to access it at: https://<host>8086/dotAdmin
+
+This URL is incorrect for two reasons:
+
+    The Port: You are trying to use port 8086, but your script maps the application to port 8082.
+
+    The Protocol: You are using https://, which is for secure connections. The port 8082 is configured for standard, unencrypted http.
+
+The Solution: Use the Correct URL
+
+Based on your script, the correct URL to access the dotCMS admin panel is:
+
+http://<your_host_ip_or_localhost>:8082/dotAdmin
+
+    Protocol: http
+
+    Port: 8082
+
+    Path: /dotAdmin
