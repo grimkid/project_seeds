@@ -1,1 +1,5 @@
 image-cache/*.tar
+data/
+data/**
+data-loki/
+data-loki/**
