@@ -13,9 +13,12 @@ if docker images | grep -q dotcms; then
   docker rmi -f dotcms || true
 fi
 
-# Remove dotcms-net network
+# Remove dotcms-net and internal-net networks
 if docker network inspect dotcms-net >/dev/null 2>&1; then
   docker network rm dotcms-net || true
+fi
+if docker network inspect internal-net >/dev/null 2>&1; then
+  docker network rm internal-net || true
 fi
 
 # Prune unused Docker resources (no prompt)

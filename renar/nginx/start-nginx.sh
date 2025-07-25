@@ -16,6 +16,8 @@ fi
 docker build -t custom-nginx .
 docker run -d \
   --restart=always \
+  --network=internal-net \
+  --ip=172.28.0.10 \
   -p 8089:80 \
   --name nginx-server \
   --add-host=host.docker.internal:host-gateway \

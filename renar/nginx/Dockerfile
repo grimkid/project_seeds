@@ -14,7 +14,7 @@ RUN apt-get update && \
 
 # Copy Promtail config
 COPY promtail-config.yaml /etc/promtail-config.yaml
-
+COPY data/html/default.conf /etc/nginx/conf.d/default.conf
 # Expose port 80
 EXPOSE 80
 

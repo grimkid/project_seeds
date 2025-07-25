@@ -89,12 +89,20 @@ https://host:8087
 - **Postgres**: Internal database for dotCMS, not exposed outside the Docker network.
 - **Loki**: Log aggregation system. Exposes port 8088. Receives logs from Promtail running in the dotCMS container.
 - **Promtail**: Log shipping agent, runs inside the dotCMS container, ships logs to Loki.
-- **Grafana**: Visualization and monitoring UI. Exposes port 8087. Pre-configured with Loki as a data source and admin/users provisioned by script.
+- **Grafana**: Visualization and monitoring UI. Now only accessible via Nginx reverse proxy (no direct port published). Nginx proxies /grafana/ to Grafana inside the internal Docker network.
 - **Frontend Pod**: Development environment for frontend, with SSH and app ports 8090, 8083, 8084.
 - **Backend Pod**: Development environment for backend, with SSH and app ports 8091, 8085.
-- **Nginx**: Lightweight web server and reverse proxy. Exposes port 8089. Useful for static content or as a reverse proxy for other services. Start with `./start-nginx.sh` in the `nginx/` folder.
+- **Nginx**: Lightweight web server and reverse proxy. Exposes port 8089. Proxies /grafana/ to Grafana (http://172.28.0.20:3000) and serves static content. Start with `./start-nginx.sh` in the `nginx/` folder.
 - **dotcms-net**: Docker network for internal communication between all containers.
+- **internal-net**: Internal Docker network (subnet 172.28.0.0/16) for all containers. Only Nginx is exposed to the LAN via port 8089; all other containers are isolated and only accessible within this network.
 
+## Accessing Grafana
+
+- From your LAN, access Grafana at: `http://<host-lan-ip>:8089/grafana/`
+  - Example: `http://192.168.88.32:8089/grafana/`
+- Do NOT use the internal Docker IP (172.28.0.20) or port 3000 from outside Docker; access is only via Nginx.
+
+---
 
 docker exec -it nginx-server /bin/sh
 Where nginx-server = container name

@@ -29,18 +29,19 @@ fi
 
 docker run -d \
   --name "$CONTAINER_NAME" \
-  --network dotcms-net \
+  --network internal-net \
+  --ip 172.28.0.20 \
   --restart=always \
-  -p 8087:3000 \
   -v "$DATA_DIR:/var/lib/grafana" \
   -v "$PROVISION_FILE:/etc/grafana/provisioning/datasources/grafana-provision-loki.yaml" \
   -e GF_SECURITY_ADMIN_USER=admin \
   -e GF_SECURITY_ADMIN_PASSWORD="$GRAFANA_ADMIN_PASS" \
+  -e GF_SERVER_ROOT_URL="http://localhost:8089/grafana/" \
   "$IMAGE_NAME"
 
-# Wait for Grafana to be up
-until curl -s http://localhost:8087/api/health | grep -q 'database'; do
-  echo "[grafana] Waiting for Grafana to be ready..."
+# Wait for Grafana to be up (via nginx reverse proxy)
+until curl -s http://localhost:8089/grafana/api/health | grep -q 'database'; do
+  echo "[grafana] Waiting for Grafana to be ready via nginx..."
   sleep 3
 done
 
@@ -49,20 +50,20 @@ for user in "${USERS[@]}"; do
   pass="${user}admin"
   email="${user}@local.com"
   echo "[grafana] Creating user $user..."
-  # Check if user exists
-  user_id=$(curl -s -u admin:$GRAFANA_ADMIN_PASS http://localhost:8087/api/users/lookup?loginOrEmail=$user | grep -o '"id":[0-9]*' | head -n1 | cut -d':' -f2)
+  # Check if user exists (via nginx reverse proxy)
+  user_id=$(curl -s -u admin:$GRAFANA_ADMIN_PASS http://localhost:8089/grafana/api/users/lookup?loginOrEmail=$user | grep -o '"id":[0-9]*' | head -n1 | cut -d':' -f2)
   if [ -z "$user_id" ]; then
     # Create user if not exists
-    curl -s -X POST http://localhost:8087/api/admin/users \
+    curl -s -X POST http://localhost:8089/grafana/api/admin/users \
       -H "Content-Type: application/json" \
       -u admin:$GRAFANA_ADMIN_PASS \
       -d '{"name":"'$user'","email":"'$email'","login":"'$user'","password":"'$pass'","OrgId":1}' >/dev/null
     # Get new user id
-    user_id=$(curl -s -u admin:$GRAFANA_ADMIN_PASS http://localhost:8087/api/users/lookup?loginOrEmail=$user | grep -o '"id":[0-9]*' | head -n1 | cut -d':' -f2)
+    user_id=$(curl -s -u admin:$GRAFANA_ADMIN_PASS http://localhost:8089/grafana/api/users/lookup?loginOrEmail=$user | grep -o '"id":[0-9]*' | head -n1 | cut -d':' -f2)
   fi
   # Make user admin if user_id found
   if [ -n "$user_id" ]; then
-    curl -s -X PATCH http://localhost:8087/api/orgs/1/users/$user_id \
+    curl -s -X PATCH http://localhost:8089/grafana/api/orgs/1/users/$user_id \
       -H "Content-Type: application/json" \
       -u admin:$GRAFANA_ADMIN_PASS \
       -d '{"role":"Admin"}' >/dev/null
