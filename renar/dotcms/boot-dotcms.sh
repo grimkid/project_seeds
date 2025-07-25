@@ -48,11 +48,7 @@ if [ ! -f "$SCRIPT_DIR/Dockerfile" ]; then
   exit 1
 fi
 
-# Remove and recreate network
-if docker network inspect dotcms-net >/dev/null 2>&1; then
-  docker network rm dotcms-net
-fi
-docker network create dotcms-net
+
 
 Load postgres image from image-cache if available
 CACHE_DIR="$SCRIPT_DIR/../image-cache"
@@ -65,7 +61,7 @@ POSTGRES_USER="dotcmsdbuser"
 POSTGRES_PASSWORD="password"
 POSTGRES_DB="dotcms"
 if ! docker ps -a --format '{{.Names}}' | grep -q '^dotcms-postgres$'; then
-  docker run --name dotcms-postgres --network dotcms-net \
+  docker run --name dotcms-postgres --network internal-net \
     -e POSTGRES_USER="$POSTGRES_USER" \
     -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
     -e POSTGRES_DB="$POSTGRES_DB" \
@@ -92,15 +88,13 @@ if [ -f "$CACHE_DIR/elastic.tar" ]; then
   docker load -i "$CACHE_DIR/elastic.tar"
 fi
 
-# Start Elasticsearch container
-if ! docker ps -a --format '{{.Names}}' | grep -q '^dotcms-elasticsearch$'; then
-  docker run --name dotcms-elasticsearch --network dotcms-net -d \
-    -e "discovery.type=single-node" \
-    -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
-    -e "xpack.security.enabled=false" \
-    -p 9200:9200 \
-    docker.elastic.co/elasticsearch/elasticsearch:7.17.14
-fi
+# Always remove and start dotcms-elasticsearch to ensure it is on internal-net
+docker rm -f dotcms-elasticsearch 2>/dev/null || true
+docker run --name dotcms-elasticsearch --network internal-net -d \
+  -e "discovery.type=single-node" \
+  -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
+  -e "xpack.security.enabled=false" \
+  docker.elastic.co/elasticsearch/elasticsearch:7.17.14
 
 # # Wait for Elasticsearch to be ready
 # echo "Waiting for Elasticsearch to be ready..."
@@ -117,22 +111,21 @@ fi
 #   exit 1
 # fi
       
-# Wait for Elasticsearch to be ready
+# Wait for Elasticsearch to be ready (from inside the Docker network)
 echo "Waiting for Elasticsearch to be ready..."
 for i in {1..120}; do
-  # Query the cluster health API and check for a yellow or green status
-  HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=10s")
-  if [ "$HEALTH_STATUS" = "200" ]; then
-    echo "Elasticsearch is ready with yellow or green status."
+  STATUS=$(docker run --rm --network internal-net curlimages/curl:8.7.1 -s -o /dev/null -w "%{http_code}" "http://dotcms-elasticsearch:9200/")
+  if [ "$STATUS" = "200" ]; then
+    echo "Elasticsearch is up and responding."
     break
   fi
-  echo "Waiting for Elasticsearch cluster to be ready... (attempt $i/120)"
+  echo "Waiting for Elasticsearch to be up... (attempt $i/120)"
   sleep 10
 done
 
 # Final check
-HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=1s")
-if [ "$HEALTH_STATUS" != "200" ]; then
+STATUS=$(docker run --rm --network internal-net curlimages/curl:8.7.1 -s -o /dev/null -w "%{http_code}" "http://dotcms-elasticsearch:9200/")
+if [ "$STATUS" != "200" ]; then
   echo "[ERROR] Elasticsearch did not become ready in time. Check container logs: docker logs dotcms-elasticsearch"
   exit 1
 fi
@@ -153,9 +146,10 @@ cd - >/dev/null || true
 # --- ADMIN CREDENTIALS ---
   # Username: admin
   # Password: 7e2e1b2c-2e2e-4e2e-8e2e-2e2e2e2e2e2e
-  # https://host:8443/dotAdmin/
-docker run --name dotcms-app --network dotcms-net -d \
-  -p 8086:8443 -p 4000:4000 \
+  # https://host:8443/dotAdmin/ by default
+  # http://192.168.88.32:8089/dotcms/#/ thorugh nginx reverse proxy
+docker run --name dotcms-app --network internal-net -d \
+  # No ports published; only accessible via internal Docker network \
   -v "$SCRIPT_DIR/data/dotcms/shared:/data/shared" \
   -e CMS_JAVA_OPTS='-Xmx1g ' \
   -e LANG='C.UTF-8' \
@@ -183,10 +177,10 @@ if [ -f "$CACHE_DIR/promtail.tar" ]; then
   docker load -i "$CACHE_DIR/promtail.tar"
 fi
 
-# Start Promtail as a sidecar container (optional)
+# Start Promtail as a sidecar container (on internal-net)
 echo "Starting Promtail for log collection..."
 if [ -f "$SCRIPT_DIR/promtail-config.yaml" ]; then
-  docker run --name promtail-dotcms --network dotcms-net -d \
+  docker run --name promtail-dotcms --network internal-net -d \
     -v "$SCRIPT_DIR/data/dotcms/logs:/var/log/dotcms" \
     -v "$SCRIPT_DIR/promtail-config.yaml:/etc/promtail/promtail-config.yaml" \
     grafana/promtail:2.9.11 -config.file=/etc/promtail/promtail-config.yaml

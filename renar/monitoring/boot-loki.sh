@@ -28,9 +28,8 @@ fi
 
 docker run -d \
   --name "$CONTAINER_NAME" \
-  --network dotcms-net \
+  --network internal-net \
   --restart=always \
-  -p 8088:3100 \
   -v "$DATA_DIR:/loki" \
   -v "$CONFIG_FILE:/etc/loki/loki-config.yaml" \
   "$IMAGE_NAME" \

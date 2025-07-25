@@ -21,12 +21,12 @@ docker pull grafana/loki:2.9.7
 
 docker pull grafana/promtail:2.9.11
  
-docker pull docker.elastic.co/elasticsearch/elasticsearch:8.5.3
+docker pull docker.elastic.co/elasticsearch/elasticsearch:7.17.14
  
 
 # Add more images as needed
-echo "Saving docker.elastic.co/elasticsearch/elasticsearch:8.5.3 to elastic.tar..."
-docker save docker.elastic.co/elasticsearch/elasticsearch:8.5.3 -o elastic.tar
+echo "Saving docker.elastic.co/elasticsearch/elasticsearch:7.17.14 to elastic.tar..."
+docker save docker.elastic.co/elasticsearch/elasticsearch:7.17.14 -o elastic.tar
 
 echo "Saving grafana/promtail:2.9.11 to promtail.tar..."
 docker save grafana/promtail:2.9.11 -o promtail.tar

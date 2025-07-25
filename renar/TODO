@@ -1,5 +1,8 @@
-finish implementation for dotcms stable version. am fct backup la versiunea care mergea de nightly, dar ar fi mai safe sa rulam stable version
 
-grafana/promtail labels
+grafana/promtail labels not working
 
 try creating proper users more. currently only assigning frontend permisions. 
+
+need nginx proxying for backend and frontend 
+
+need to check proper connecction through nginx routing for logs moving from nginx and dotcms to grafana through  loki. 

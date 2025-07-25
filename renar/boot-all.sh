@@ -28,9 +28,15 @@ cd "$SCRIPT_DIR"
 echo "[boot-all] Starting dotCMS and Postgres..."
 ./dotcms/boot-dotcms.sh &
 
-# Wait for dotCMS to be up (port 8086)
-echo "[boot-all] Waiting for dotCMS to be up on port 8086..."
-while ! nc -z localhost 8086; do
+# Wait for dotCMS to be up (via nginx reverse proxy) with countdown
+echo "[boot-all] Waiting for dotCMS to be healthy via nginx..."
+dotcms_retries=60
+until curl -sf http://localhost:8089/dotcms/dotAdmin/ > /dev/null; do
+  dotcms_retries=$((dotcms_retries-1))
+  if [ $dotcms_retries -le 0 ]; then
+    echo "[boot-all] ERROR: dotCMS did not become healthy in time."
+    exit 1
+  fi
   sleep 3
 done
 
@@ -49,9 +55,15 @@ cd "$SCRIPT_DIR"
 ./monitoring/boot-grafana.sh &
 
 
-# Wait for Grafana to be up (via nginx reverse proxy)
+# Wait for Grafana to be up (via nginx reverse proxy) with countdown
 echo "[boot-all] Waiting for Grafana to be healthy via nginx..."
-until curl -s http://localhost:8089/grafana/api/health | grep -q 'database'; do
+grafana_retries=60
+until curl -sf http://localhost:8089/grafana/api/health | grep -q 'database'; do
+  grafana_retries=$((grafana_retries-1))
+  if [ $grafana_retries -le 0 ]; then
+    echo "[boot-all] ERROR: Grafana did not become healthy in time."
+    exit 1
+  fi
   sleep 3
 done
 
