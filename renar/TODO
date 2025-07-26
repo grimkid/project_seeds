@@ -1,8 +1,6 @@
 
-grafana/promtail labels not working
+grafana/promtail labels not working for dotcms. nginx is working
 
-try creating proper users more. currently only assigning frontend permisions. 
+try creating proper users more. currently only assigning frontend permisions.  (dotcms)
 
 need nginx proxying for backend and frontend 
-
-need to check proper connecction through nginx routing for logs moving from nginx and dotcms to grafana through  loki. 
