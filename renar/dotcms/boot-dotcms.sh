@@ -113,6 +113,13 @@ docker run --name dotcms-elasticsearch --network internal-net -d \
       
 # Wait for Elasticsearch to be ready (from inside the Docker network)
 echo "Waiting for Elasticsearch to be ready..."
+# Load from image-cache if available
+CACHE_DIR="$SCRIPT_DIR/../image-cache"
+if [ -f "$CACHE_DIR/curl.tar" ]; then
+  echo "[backend] Loading curl from image-cache..."
+  docker load -i "$CACHE_DIR/curl.tar"
+fi
+
 for i in {1..120}; do
   STATUS=$(docker run --rm --network internal-net curlimages/curl:8.7.1 -s -o /dev/null -w "%{http_code}" "http://dotcms-elasticsearch:9200/")
   if [ "$STATUS" = "200" ]; then
@@ -147,7 +154,7 @@ cd - >/dev/null || true
   # Username: admin
   # Password: 7e2e1b2c-2e2e-4e2e-8e2e-2e2e2e2e2e2e
   # https://host:8443/dotAdmin/ by default
-  # http://192.168.88.32:8089/dotcms/#/ thorugh nginx reverse proxy
+  # http://192.168.88.32:8089/dotAdmin/ through nginx reverse proxy
   # No ports published; only accessible via internal Docker network \
 docker run --name dotcms-app --network internal-net -d \
   -v "$SCRIPT_DIR/data/dotcms/shared:/data/shared" \
@@ -164,7 +171,6 @@ docker run --name dotcms-app --network internal-net -d \
   -e COOKIE_SECURE=false \
   -e DOT_COOKIE_SECURE=false \
   -e GLOWROOT_WEB_UI_ENABLED='true' \
-  -e CUSTOM_STARTER_URL='https://repo.dotcms.com/artifactory/libs-release-local/com/dotcms/starter/empty_20241105/starter-empty_20241105.zip' \
   -e DOT_ES_ENDPOINTS='http://dotcms-elasticsearch:9200' \
   --restart=always \
   dotcms
