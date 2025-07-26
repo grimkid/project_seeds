@@ -1,8 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Boot the entire Renar stack in the correct order
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# Log all output to a log file near this script
+exec > >(tee -a "$SCRIPT_DIR/boot-all.log") 2>&1
+
 echo "[boot-all] Starting boot process in $SCRIPT_DIR"
 
 # 0. Initialize internal Docker network

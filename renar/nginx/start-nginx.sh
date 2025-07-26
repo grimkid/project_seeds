@@ -6,6 +6,13 @@ cd "$SCRIPT_DIR"
  # Remove existing nginx-server container if it exists
  docker rm -f nginx-server 2>/dev/null || true
 
+
+# Clean up old Nginx logs before starting
+LOG_DIR="$SCRIPT_DIR/data/log"
+if [ -d "$LOG_DIR" ]; then
+  rm -f "$LOG_DIR"/access.log "$LOG_DIR"/error.log
+fi
+
 # Load grafana/loki:2.9.7 from image-cache if available
 CACHE_DIR="$(dirname "$0")/../image-cache"
 if [ -f "$CACHE_DIR/nginx-latest.tar" ]; then
