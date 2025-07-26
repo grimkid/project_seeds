@@ -1,4 +1,6 @@
 image-cache/*.tar
+!nginx/data/
+!nginx/data/**
 data/
 data/**
 data-loki/
