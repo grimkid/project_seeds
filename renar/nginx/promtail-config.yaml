@@ -6,12 +6,25 @@ positions:
   filename: /tmp/positions.yaml
 
 clients:
-  - url: http://host.docker.internal:8088/loki/api/v1/push
+  - url: http://loki-monitoring:3100/loki/api/v1/push
+    batchwait: 1s         # Maximum wait time before sending a batch (default: 1s)
+    batchsize: 1048576    # Maximum batch size in bytes (default: 1,048,576 = 1MB)
 
 scrape_configs:
   - job_name: nginx-logs
     static_configs:
       - targets: ['localhost']
         labels:
-          job: nginx
-          __path__: /var/log/nginx/*.log
+          component: nginx
+          job: access
+          __path__: /var/log/nginx/access.log,/var/log/nginx/access.log.[1-9]*
+      - targets: ['localhost']
+        labels:
+          component: nginx
+          job: error
+          __path__: /var/log/nginx/error.log,/var/log/nginx/error.log.[1-9]*
+      - targets: ['localhost']
+        labels:
+          component: nginx
+          job: all
+          __path__: /var/log/nginx/*.log,/var/log/nginx/*.log[.1-9]*
