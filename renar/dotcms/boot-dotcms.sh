@@ -148,8 +148,8 @@ cd - >/dev/null || true
   # Password: 7e2e1b2c-2e2e-4e2e-8e2e-2e2e2e2e2e2e
   # https://host:8443/dotAdmin/ by default
   # http://192.168.88.32:8089/dotcms/#/ thorugh nginx reverse proxy
-docker run --name dotcms-app --network internal-net -d \
   # No ports published; only accessible via internal Docker network \
+docker run --name dotcms-app --network internal-net -d \
   -v "$SCRIPT_DIR/data/dotcms/shared:/data/shared" \
   -e CMS_JAVA_OPTS='-Xmx1g ' \
   -e LANG='C.UTF-8' \

@@ -56,7 +56,7 @@ This folder contains scripts and Dockerfiles to manage a local development stack
 - **8088**: Loki (log aggregation, only accessible from internal Docker network)
 
 ## Notes
-- All pods use the `dotcms-net` Docker network for internal communication.
+- All pods use the `internal-net` Docker network for internal communication.
 - Each pod has a `data` folder for persistence.
 - SSH access is only allowed via public key for users `rares` and `seby`.
 - dotCMS admin users (mihai, rares, seby, renar) are provisioned by script.
@@ -96,7 +96,6 @@ https://host:8087
 - **Frontend Pod**: Development environment for frontend, with SSH and app ports 8090, 8083, 8084.
 - **Backend Pod**: Development environment for backend, with SSH and app ports 8091, 8085.
 - **Nginx**: Lightweight web server and reverse proxy. Exposes port 8089. Proxies /grafana/ to Grafana (http://172.28.0.20:3000) and serves static content. Start with `./start-nginx.sh` in the `nginx/` folder. Only Nginx is exposed to the LAN; all other services are isolated.
-- **dotcms-net**: Docker network for internal communication between all containers (legacy, not used for Loki/Grafana/Nginx).
 - **internal-net**: Internal Docker network (subnet 172.28.0.0/16) for all containers. Only Nginx is exposed to the LAN via port 8089; all other containers are isolated and only accessible within this network.
 
 

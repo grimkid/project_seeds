@@ -35,7 +35,7 @@ docker build -t "$IMAGE_NAME" "$SCRIPT_DIR"
 
 docker run -d \
   --name "$CONTAINER_NAME" \
-  --network dotcms-net \
+  --network internal-net \
   --restart=always \
   -p 8091:22 \
   -p 8085:8085 \
