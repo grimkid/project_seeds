@@ -11,10 +11,10 @@ cd "$SCRIPT_DIR"
 # Clean up old Nginx logs before starting and ensure they are world-readable
 LOG_DIR="$SCRIPT_DIR/data/log"
 if [ -d "$LOG_DIR" ]; then
-  rm -f "$LOG_DIR"/access.log "$LOG_DIR"/error.log
+  sudo rm -f "$LOG_DIR"/access.log "$LOG_DIR"/error.log
   # Create empty log files and set permissions
-  touch "$LOG_DIR/access.log" "$LOG_DIR/error.log"
-  chmod 644 "$LOG_DIR/access.log" "$LOG_DIR/error.log"
+  sudo touch "$LOG_DIR/access.log" "$LOG_DIR/error.log"
+  sudo chmod 644 "$LOG_DIR/access.log" "$LOG_DIR/error.log"
 fi
 
 # Load grafana/loki:2.9.7 from image-cache if available

@@ -1,5 +1,5 @@
 server:
-  http_listen_port: 9081
+  http_listen_port: 9082
   grpc_listen_port: 0
 
 positions:
@@ -17,14 +17,14 @@ scrape_configs:
         labels:
           component: nginx
           job: access
-          __path__: /var/log/nginx/access.log,/var/log/nginx/access.log.[1-9]*
+          __path__: /var/log/nginx/access.log*
       - targets: ['localhost']
         labels:
           component: nginx
           job: error
-          __path__: /var/log/nginx/error.log,/var/log/nginx/error.log.[1-9]*
+          __path__: /var/log/nginx/error.log*
       - targets: ['localhost']
         labels:
           component: nginx
           job: all
-          __path__: /var/log/nginx/*.log,/var/log/nginx/*.log[.1-9]*
+          __path__: /var/log/nginx/*.log*
