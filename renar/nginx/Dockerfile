@@ -18,5 +18,11 @@ COPY data/html/default.conf /etc/nginx/conf.d/default.conf
 # Expose port 80
 EXPOSE 80
 
-# Start both Nginx and Promtail
-CMD /bin/sh -c "nginx -g 'daemon off;' & /usr/bin/promtail -config.file=/etc/promtail-config.yaml"
+# Install supervisor for process management
+RUN apt-get update && apt-get install -y supervisor && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Copy supervisor config
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Start supervisor (which manages both Nginx and Promtail)
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
