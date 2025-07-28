@@ -158,6 +158,7 @@ cd - >/dev/null || true
   # No ports published; only accessible via internal Docker network \
 docker run --name dotcms-app --network internal-net -d \
   -v "$SCRIPT_DIR/data/dotcms/shared:/data/shared" \
+  -v "$SCRIPT_DIR/data/dotcms/logs:/srv/dotserver/tomcat/logs" \
   -e CMS_JAVA_OPTS='-Xmx1g ' \
   -e LANG='C.UTF-8' \
   -e TZ='UTC' \

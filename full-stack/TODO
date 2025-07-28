@@ -1,6 +1,3 @@
-
-grafana/promtail labels not working for dotcms. nginx is working
-
 try creating proper users more. currently only assigning frontend permisions.  (dotcms)
 
 need nginx proxying for backend and frontend 

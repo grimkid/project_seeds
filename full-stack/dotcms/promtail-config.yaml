@@ -17,4 +17,4 @@ scrape_configs:
         labels:
           component: dotcms
           job: all
-          __path__: /data/logs/*.log,/data/logs/*.log.[1-9]*
+          __path__: /var/log/dotcms/*.log
