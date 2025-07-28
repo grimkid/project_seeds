@@ -8,7 +8,7 @@ USERS=(
   "rares@local.com"
   "seby@local.com"
   "mihai@keydigital.com"
-  "admin@renar.ro"
+  "user@local.com"
 )
 PASSWORD="admin"
 

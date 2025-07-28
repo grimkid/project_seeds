@@ -1,5 +1,5 @@
 #!/bin/bash
-# Clean all Renar stack resources: containers, images, network, and prune Docker
+# Clean all full-stack resources: containers, images, network, and prune Docker
 
 set -e
 

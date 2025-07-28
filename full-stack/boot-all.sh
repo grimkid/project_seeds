@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Boot the entire Renar stack in the correct order
+# Boot the entire full-stack in the correct order
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

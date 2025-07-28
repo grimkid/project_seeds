@@ -6,7 +6,7 @@ IMAGE_NAME="grafana/grafana-oss:latest"
 DATA_DIR="$(dirname "$0")/data"
 PROVISION_FILE="$(dirname "$0")/grafana-provision-loki.yaml"
 GRAFANA_ADMIN_PASS="e2f1c3b4-5d6e-7f8a-9b0c-1d2e3f4a5b6c"  # Hardcoded UUID
-USERS=(rares seby renar)
+USERS=(rares seby user)
 
 # Ensure data directory exists (recreate if missing) and set correct permissions/ownership
 if [ ! -d "$DATA_DIR" ]; then

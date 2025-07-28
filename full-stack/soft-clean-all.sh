@@ -1,5 +1,5 @@
 #!/bin/bash
-# Soft clean: remove all Renar stack containers, custom images, and networks, but KEEP persistent data
+# Soft clean: remove all full-stack containers, custom images, and networks, but KEEP persistent data
 
 set -e
 

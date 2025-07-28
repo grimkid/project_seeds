@@ -1,117 +1,107 @@
-# Renar Development Environment
+# Full-Stack: Modern Fullstack Project Boilerplate
 
-This folder contains scripts and Dockerfiles to manage a local development stack with frontend, backend, and dotCMS pods, each with persistence and secure SSH access.
+This repository provides a fullstack project template with a modern architecture:
 
-## Folder Structure
+- **Backend**: Serves dynamic data (API, business logic)
+- **Frontend**: React app for the user interface
+- **dotCMS**: Headless CMS for static resources and content
+- **Grafana + Loki**: Centralized logging and observability for all services
+- **Nginx**: Central router and reverse proxy for all HTTP(S) traffic
 
-- `frontend/` - Frontend development pod (JDK 21, vim, SSH, ports 8090/8083/8084)
-- `backend/`  - Backend development pod (JDK 21, vim, SSH, port 8091/8085)
-- `dotcms/`   - dotCMS pod (port 8086, internal Postgres, user provisioning)
-- `monitoring/` - Monitoring stack (Loki, Grafana)
+## Quick Start: Boot the Entire Stack
 
+To start all services in the correct order, run:
 
-## Usage Order
+```bash
+cd full-stack
+./boot-all.sh
+```
 
-1. **Start dotCMS and Postgres**
-   - `cd dotcms`
-   - `./boot-dotcms.sh`
-   - Wait until dotCMS is up (port 8086)
-   - (Optional) Run `./provision-dotcms-users.sh` to reset admin password
+This will:
+1. Set up the internal Docker network
+2. Start dotCMS and Postgres
+3. Start Loki (log aggregation)
+4. Start Grafana (log dashboard)
+5. Start the frontend pod (React)
+6. Start the backend pod (API)
+7. Start Nginx as the central router
 
-2. **Start Loki (log aggregation)**
-   - `cd ../monitoring`
-   - `./boot-loki.sh`
+All logs are routed to Loki and viewable in Grafana.
 
-3. **Start Grafana (monitoring UI)**
-   - `./boot-grafana.sh`
-   - Wait until Grafana is up (port 8087)
-
-4. **Start the frontend pod**
-   - `cd ../frontend`
-   - `./boot-frontend-pod.sh`
-
-5. **Start the backend pod**
-   - `cd ../backend`
-   - `./boot-backend-pod.sh`
-
-6. **Start Nginx (optional)**
-   - `cd ../nginx`
-   - `./start-nginx.sh`
+## Architecture Overview
 
 
+```
+                ┌────────────┐
+                │   Grafana  │
+                └─────▲──────┘
+                      │
+                      │
+┌────────────┐   ┌─────┴─────┐   ┌────────────┐
+│  Frontend  │<->│   Nginx   │<->│   Backend  │
+└────────────┘   └─────▲─────┘   └────────────┘
+                      │
+                      │
+                ┌─────┴─────┐
+                │   dotCMS  │
+                └───────────┘
+```
 
-## Relevant Ports
+- **Nginx** is the central hub: all HTTP(S) traffic flows through it. It routes requests to the frontend, backend, dotCMS, and Grafana. All services are only accessible via Nginx.
+- **Frontend** communicates with the backend (for dynamic data) and dotCMS (for static content) through Nginx.
+- **Grafana** is also accessed through Nginx and receives logs from all services, including Nginx itself.
 
-- **22**: SSH to Ubuntu host
-- **8090**: SSH to frontend pod
-- **8091**: SSH to backend pod
-- **8083, 8084**: Frontend pod app ports
-- **8085**: Backend pod app port
-- **8086**: dotCMS (admin and public)
-- **8089**: Nginx (reverse proxy for Grafana and static content; only public port for monitoring)
-- **5432**: Postgres (internal, only for dotCMS)
+- **Frontend** (React):
+  - Receives static content (images, assets, etc.) from dotCMS (via Nginx)
+  - Fetches dynamic data from the backend API (via Nginx)
+  - Routed via Nginx
 
-### Internal-only (not exposed to host)
-- **8087**: Grafana (no longer exposed; use nginx on 8089)
-- **8088**: Loki (log aggregation, only accessible from internal Docker network)
+- **Backend**:
+  - Serves dynamic data (REST/GraphQL API)
+  - Routed via Nginx
 
-## Notes
-- All pods use the `internal-net` Docker network for internal communication.
-- Each pod has a `data` folder for persistence.
-- SSH access is only allowed via public key for users `rares` and `seby`.
-- dotCMS admin users (mihai, rares, seby, renar) are provisioned by script.
-- dotCMS is accessible to everyone on port 8086.
-- Postgres is only accessible internally by dotCMS.
+- **dotCMS**:
+  - Provides static resources and content management
+  - Routed via Nginx
 
-## Scripts
-- `boot-dotcms.sh` - Builds and runs a custom dotCMS image with Promtail for log shipping, starts Postgres, ensures persistence and network.
-- `provision-dotcms-users.sh` - Resets the admin@dotcms.com password via the API.
-- `boot-loki.sh` - Runs Loki log aggregation with persistent data, exposes port 8088.
-- `boot-grafana.sh` - Runs Grafana with persistent data, sets up admin and users, and provisions Loki as a data source.
-- `boot-frontend-pod.sh` - Builds and runs the frontend pod with persistence and correct ports.
-- `boot-backend-pod.sh` - Builds and runs the backend pod with persistence and correct ports.
-
-Run the scripts in the order above for a working full-stack dev environment.
-
-## Users:
-
-### For dotcms:
-host:8086/dotAdmin
-rares@local.com:raresadmin
-seby@local.com:sebyadmin
-renar@local.com:renaradmin
-mihai@keydigital.ro:mihaiadmin
-
-### For grafana:
-https://host:8087
+- **Grafana + Loki**:
+  - Collects and displays logs from all services (dotCMS, backend, frontend, Nginx)
+  - Access Grafana via Nginx
 
 
-## Components
+## Routing Logic (Nginx)
 
-- **dotCMS**: Enterprise CMS running in a custom container with Promtail for log shipping. Exposes port 8086. Logs are shipped to Loki and rotated automatically.
-- **Postgres**: Internal database for dotCMS, not exposed outside the Docker network.
-- **Loki**: Log aggregation system. Only accessible from inside the internal Docker network (no port exposed to host). Receives logs from Promtail running in the dotCMS container.
-- **Promtail**: Log shipping agent, runs inside the dotCMS container, ships logs to Loki.
-- **Grafana**: Visualization and monitoring UI. Now only accessible via Nginx reverse proxy (no direct port published). Nginx proxies /grafana/ to Grafana inside the internal Docker network.
-- **Frontend Pod**: Development environment for frontend, with SSH and app ports 8090, 8083, 8084.
-- **Backend Pod**: Development environment for backend, with SSH and app ports 8091, 8085.
-- **Nginx**: Lightweight web server and reverse proxy. Exposes port 8089. Proxies /grafana/ to Grafana (http://172.28.0.20:3000) and serves static content. Start with `./start-nginx.sh` in the `nginx/` folder. Only Nginx is exposed to the LAN; all other services are isolated.
-- **internal-net**: Internal Docker network (subnet 172.28.0.0/16) for all containers. Only Nginx is exposed to the LAN via port 8089; all other containers are isolated and only accessible within this network.
+- Requests with header `c: fe` are routed to the frontend pod
+- Requests with header `c: be` are routed to the backend pod
+- Requests for `/dotAdmin/`, `/c/portal/`, `/dotcms-webcomponents/` are proxied to dotCMS
+- Requests for `/grafana/` are proxied to Grafana
+- All other requests are routed based on cookies, referer, or fallback to static/404
 
+## Logging & Observability
 
-## Accessing Grafana
+- All logs (Nginx, dotCMS, backend, frontend) are collected by Promtail and sent to Loki
+- Grafana provides a unified dashboard for querying and visualizing logs
 
-- From your LAN, access Grafana at: `http://<host-lan-ip>:8089/grafana/`
-  - Example: `http://192.168.88.32:8089/grafana/`
-- Do NOT use the internal Docker IP (172.28.0.20) or port 3000 from outside Docker; access is only via Nginx on port 8089.
+## Development & Customization
 
-## Accessing Loki
+- Each service (backend, frontend, dotCMS) has its own boot script and Dockerfile
+- To rebuild or restart a service, use the corresponding script in its directory
+- To clean up all containers, images, and networks, use `clean-all.sh` or `soft-clean-all.sh`
 
-- Loki is only accessible from within the internal Docker network (`internal-net`). There is no port published to the host. Promtail and other containers on the internal network can send logs to Loki at `http://loki-monitoring:3100` or `http://172.28.0.20:3100` (if you set a static IP for Loki).
+## Directory Structure
+
+```
+full-stack/
+├── backend/           # Backend API service
+├── frontend/          # Frontend React app
+├── dotcms/            # dotCMS headless CMS
+├── monitoring/        # Grafana, Loki, Promtail configs
+├── nginx/             # Nginx config and Dockerfile
+├── boot-all.sh        # Main stack boot script
+├── clean-all.sh       # Full cleanup script
+└── ...
+```
 
 ---
 
----
-
-docker exec -it nginx-server /bin/sh
-Where nginx-server = container name
+For more details, see the individual service directories and scripts.
