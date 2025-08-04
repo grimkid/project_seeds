@@ -5,22 +5,19 @@ import Sidebar from '@/components/Sidebar'; // Asigură-te că ai importat Sideb
 // Interogarea GraphQL completă și validată
 const GET_PAGE_DATA = `
   query getPageDataByUrl($url: String!) {
-    PaginaGenericaCollection(limit: 1, query: "+urlMap:$url") {
+    PaginaGenericaCollection() {
       title
       blocDeContinut {
         banner {
           __typename
           title
           subtitlu
-          imagineFundal { path }
         }
-        componentaQuicklinks {
-          __typename
-          title
-          quickLinks {
-            label
-            link
-          }
+        meniu { 
+          linkUriMeniu { 
+            textLink, 
+            urlLink 
+          } 
         }
         # Adaugă aici și alte tipuri de conținut pe care le folosești
       }

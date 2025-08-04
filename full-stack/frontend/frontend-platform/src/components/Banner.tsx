@@ -8,7 +8,7 @@ type BannerProps = {
 
 export default function Banner({ title, subtitlu, imagineFundal }: BannerProps) {
   const bgStyle = imagineFundal 
-    ? { backgroundImage: `url(http://192.168.88.32:8089${imagineFundal.path})` }
+    ? { backgroundImage: `url(http://nginx-server${imagineFundal.path})` }
     : {};
 
   return (

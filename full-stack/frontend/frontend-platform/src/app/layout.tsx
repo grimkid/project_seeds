@@ -16,13 +16,15 @@ export const metadata: Metadata = {
 const GET_GLOBAL_DATA = `
   query {
     ComponentaMeniuCollection(limit: 1) {
-      menuItems {
-        label
-        link
+      linkUriMeniu {
+        linkUriMeniu
+        urlLink
       }
     }
     TextCopyrightCollection(limit: 1) {
-      text
+      textCopyright,
+      infoContact,
+      linkUriSitemap
     }
   }
 `;
