@@ -4,8 +4,8 @@ import Sidebar from '@/components/Sidebar'; // Asigură-te că ai importat Sideb
 
 // Interogarea GraphQL completă și validată
 const GET_PAGE_DATA = `
-  query getPageDataByUrl($url: String!) {
-    PaginaGenericaCollection() {
+  query getPageDataByUrl {
+    PaginaGenericaCollection {
       title
       blocDeContinut {
         banner {

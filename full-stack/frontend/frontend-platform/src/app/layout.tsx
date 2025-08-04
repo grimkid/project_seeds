@@ -12,22 +12,23 @@ export const metadata: Metadata = {
   title: "Site-ul Meu Next.js cu dotCMS",
 };
 
-// O interogare GraphQL separată pentru datele globale (Meniu, Footer)
-const GET_GLOBAL_DATA = `
-  query {
-    ComponentaMeniuCollection(limit: 1) {
-      linkUriMeniu {
-        linkUriMeniu
-        urlLink
-      }
-    }
-    TextCopyrightCollection(limit: 1) {
-      textCopyright,
-      infoContact,
-      linkUriSitemap
+
+const GET_GLOBAL_DATA = `query GetGlobalData {
+  ComponentaMeniuCollection(limit: 1) {
+    linkUriMeniu {
+      title
+      urlLink
     }
   }
-`;
+  TextCopyrightCollection(limit: 1) {
+    textCopyright
+    infoContact
+    linkUriSitemap {
+      title
+      urlLink
+    }
+  }
+}`;
 
 // Layout-ul devine o funcție asincronă!
 export default async function RootLayout({
@@ -36,22 +37,39 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   
+  // Debug: log query-ul GraphQL efectiv
+  console.log("QUERY TRIMIS LA DOTCMS:\n", GET_GLOBAL_DATA);
   // Preluăm datele globale direct pe server
   const globalData = await fetchDotCMS<any>({ query: GET_GLOBAL_DATA });
-  const menuItems = globalData?.ComponentaMeniuCollection?.[0]?.menuItems || [];
-  const copyrightText = globalData?.TextCopyrightCollection?.[0]?.text || "© 2025 Compania Mea";
+  const rawMenuItems = globalData?.ComponentaMeniuCollection?.[0]?.linkUriMeniu || [];
+  const menuItems = rawMenuItems.map((item: any) => ({
+    label: item.title,
+    link: item.urlLink
+  }));
+  const footerData = globalData?.TextCopyrightCollection?.[0];
+  const copyrightText = footerData?.textCopyright || "© 2025 Compania Mea";
+  const rawSitemapLinks = footerData?.linkUriSitemap || [];
+  const sitemapLinks = rawSitemapLinks.map((item: any) => ({
+    label: item.title,
+    link: item.urlLink
+  }));
 
   return (
     <html lang="ro">
       <body className={`${inter.className} flex flex-col min-h-screen`}>
-        {/* Pasăm datele globale către componentele Header și Footer */}
+        {/* Pasăm datele procesate către componente */}
         <Header menuItems={menuItems} />
         
         <main className="flex-grow">
-          {children} {/* Aici va fi randat conținutul paginii specifice */}
+          {children}
         </main>
 
-        <Footer copyrightText={copyrightText} />
+        {/* Trebuie să ajustăm și componenta Footer să accepte noile date */}
+        <Footer 
+          copyrightText={copyrightText} 
+          contactInfo={footerData?.infoContact}
+          sitemapLinks={sitemapLinks} 
+        />
       </body>
     </html>
   );
