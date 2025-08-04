@@ -1,0 +1,19 @@
+server:
+  http_listen_port: 9081 # Port diferit de cel pentru dotCMS
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions-frontend.yaml
+
+clients:
+  - url: http://loki-monitoring:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: frontend-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          component: frontend
+          job: all
+          __path__: /app/logs/*.log # Calea de unde Promtail va citi log-urile

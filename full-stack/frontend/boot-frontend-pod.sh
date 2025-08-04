@@ -7,6 +7,11 @@ DATA_DIR="$(dirname "$0")/data"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CODE_DIR="$SCRIPT_DIR/frontend-platform"
 
+# Creează folderul local pentru log-uri
+LOGS_DIR="$SCRIPT_DIR/logs-frontend"
+mkdir -p "$LOGS_DIR"
+chmod -R 777 "$LOGS_DIR"
+
 # Ensure data directory exists and set permissions/ownership
 if [ ! -d "$DATA_DIR" ]; then
   mkdir -p "$DATA_DIR"
@@ -46,6 +51,7 @@ docker run -d \
   -p 3000:3000 \
   -v "$DATA_DIR:/data" \
   -v "$CODE_DIR:/app" \
+  -v "$LOGS_DIR:/app/logs" \
   "$IMAGE_NAME"
 
 echo "Containerul a fost pornit. Verifică log-urile cu: docker logs -f $CONTAINER_NAME"
