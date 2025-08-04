@@ -5,3 +5,5 @@ data/
 data/**
 data-loki/
 data-loki/**
+backup.sqlc
+dotcms_assets.tar.gz
