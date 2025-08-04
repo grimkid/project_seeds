@@ -21,7 +21,7 @@ sudo chmod -R 777 "$SCRIPT_DIR/data/dotcms/shared"
 echo "Fixing permissions for Postgres data directory..."
 # sudo rm -rf "$SCRIPT_DIR/data/postgres"/*  # WARNING: This will erase all existing Postgres data
 sudo chown -R 999:999 "$SCRIPT_DIR/data/postgres"
-sudo chmod -R 700 "$SCRIPT_DIR/data/postgres"
+sudo chmod -R 755 "$SCRIPT_DIR/data/postgres"
 
 # Check for Dockerfile before build
 DOCKERFILE_CONTEXT_COPY="COPY context.xml /srv/dotserver/tomcat/conf/context.xml"
@@ -149,7 +149,7 @@ docker build -t dotcms .
 cd - >/dev/null || true
 
 # --- ADMIN CREDENTIALS ---
-  # Username: admin
+  # Username: admin@dotcms.com
   # Password: 7e2e1b2c-2e2e-4e2e-8e2e-2e2e2e2e2e2e
   # https://host:8443/dotAdmin/ by default
   # http://192.168.88.32:8089/dotAdmin/ through nginx reverse proxy

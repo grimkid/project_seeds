@@ -1,0 +1,20 @@
+
+curl --location 'http://192.168.88.32:8089/api/v1/graphql' \
+--header 'dotcms: true' \
+--header 'Content-Type: application/json' \
+--data '{
+  "query": "query { ComponentaBannerCollection { identifier inode modDate title } }"
+}'
+
+for the graphql query: query { PaginaGenericaCollection { identifier inode modDate title } }
+
+
+curl --location 'http://192.168.88.32:8089/api/v1/graphql' \
+--header 'dotcms: true' \
+--header 'Content-Type: application/json' \
+--data '{
+    "query": "query { PaginaGenericaCollection { title blocDeContinut { banner { title subtitlu }, meniu { linkUriMeniu { textLink, urlLink } }, contentulGeneric { title, body { json } } } } }",
+    "variables": {
+        "url": "/index"
+    }
+}'
