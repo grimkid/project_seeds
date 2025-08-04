@@ -11,6 +11,8 @@ docker pull nginx:latest
 
 docker pull amazoncorretto:21
 
+docker pull node:20-bullseye
+
 docker pull alpine:latest
 
 docker pull dotcms/dotcms:24.12.27_lts_v8_6031d3b
@@ -27,7 +29,10 @@ docker pull docker.elastic.co/elasticsearch/elasticsearch:7.17.14
  
 
 # Add more images as needed
-echo "Saving curlimages/curl:8.7.1 to elastic.tar..."
+echo "Saving node:20-bullseye to node20bullseye.tar..."
+docker save node:20-bullseye -o node20bullseye.tar
+
+echo "Saving curlimages/curl:8.7.1 to curl.tar..."
 docker save curlimages/curl:8.7.1 -o curl.tar
 
 echo "Saving docker.elastic.co/elasticsearch/elasticsearch:7.17.14 to elastic.tar..."
