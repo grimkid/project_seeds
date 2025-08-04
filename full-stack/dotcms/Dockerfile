@@ -1,7 +1,10 @@
 FROM dotcms/dotcms:24.12.27_lts_v8_6031d3b
 # Install logrotate as root
 USER root
-RUN apt-get update && apt-get install -y logrotate && rm -rf /var/lib/apt/lists/*
+RUN sed -i '/apt.postgresql.org/d' /etc/apt/sources.list /etc/apt/sources.list.d/* || true \
+    && apt-get update \
+    && apt-get install -y logrotate \
+    && rm -rf /var/lib/apt/lists/*
 # Copy logrotate config
 COPY logrotate-dotcms.conf /etc/logrotate.d/dotcms
 # Copy context.xml and set ownership for dotcms user

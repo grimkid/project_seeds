@@ -48,9 +48,7 @@ if [ ! -f "$SCRIPT_DIR/Dockerfile" ]; then
   exit 1
 fi
 
-
-
-Load postgres image from image-cache if available
+# Load postgres image from image-cache if available
 CACHE_DIR="$SCRIPT_DIR/../image-cache"
 if [ -f "$CACHE_DIR/postgres.tar" ]; then
   echo "[backend] Loading postgres from image-cache..."
